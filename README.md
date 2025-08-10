@@ -1,4 +1,4 @@
-# gopherline
+# workqueue
 
 A Go library for publishing events to a queue system with flexible configuration options, retry mechanisms, and scheduling capabilities.
 
@@ -16,7 +16,7 @@ A Go library for publishing events to a queue system with flexible configuration
 ## Installation
 
 ```bash
-go get github.com/IsaacDSC/gopherline
+go get github.com/IsaacDSC/workqueue
 ```
 
 ## Quick Start
@@ -26,18 +26,18 @@ package main
 
 import (
     "context"
-    "github.com/IsaacDSC/gopherline"
-    "github.com/IsaacDSC/gopherline/SDK"
+    "github.com/IsaacDSC/workqueue"
+    "github.com/IsaacDSC/workqueue/SDK"
 )
 
 func main() {
     ctx := context.Background()
     
     // Create a producer with default options
-    producer := SDK.NewProducer("http://localhost:8080", "your-token", gopherline.Opts{})
+    producer := SDK.NewProducer("http://localhost:8080", "your-token", workqueue.Opts{})
     
     // Build and publish an event
-    payload := gopherline.NewInputBuilder().
+    payload := workqueue.NewInputBuilder().
         WithEvent("user.created").
         WithData(map[string]any{"user_id": "123", "email": "user@example.com"}).
         Build()
@@ -56,11 +56,11 @@ Create a producer with custom default options:
 
 ```go
 // Configure default options for all events
-opts := gopherline.NewOptsBuilder().
+opts := workqueue.NewOptsBuilder().
     WithQueueType("internal.critical").
     WithMaxRetries(5).
-    WithRetention(gopherline.NewDuration("168h")).  // 7 days
-    WithScheduleIn(gopherline.NewDuration("5m")).   // Schedule 5 minutes from now
+    WithRetention(workqueue.NewDuration("168h")).  // 7 days
+    WithScheduleIn(workqueue.NewDuration("5m")).   // Schedule 5 minutes from now
     Build()
 
 producer := SDK.NewProducer("http://localhost:8080", "your-token", opts)
@@ -72,13 +72,13 @@ Override default options for specific events:
 
 ```go
 // Create event-specific options
-eventOpts := gopherline.NewOptsBuilder().
+eventOpts := workqueue.NewOptsBuilder().
     WithQueueType("internal.high").
     WithMaxRetries(3).
-    WithUniqueTTL(gopherline.NewDuration("1h")).
+    WithUniqueTTL(workqueue.NewDuration("1h")).
     Build()
 
-payload := gopherline.NewInputBuilder().
+payload := workqueue.NewInputBuilder().
     WithEvent("payment.processed").
     WithData(paymentData).
     WithOptions(eventOpts).  // Override default options
@@ -100,7 +100,7 @@ type Producer interface {
 The `InputBuilder` provides a fluent interface for constructing event payloads:
 
 ```go
-builder := gopherline.NewInputBuilder()
+builder := workqueue.NewInputBuilder()
 
 // Required fields
 builder.WithEvent("event.name")        // Event name/type
@@ -119,12 +119,12 @@ input := builder.Build()
 Configure event processing behavior:
 
 ```go
-opts := gopherline.NewOptsBuilder().
+opts := workqueue.NewOptsBuilder().
     WithQueueType("internal.critical").     // Queue priority classification
     WithMaxRetries(5).                      // Maximum retry attempts
-    WithScheduleIn(gopherline.NewDuration("10m")).  // Delay before processing
-    WithRetention(gopherline.NewDuration("24h")).   // How long to keep the event
-    WithUniqueTTL(gopherline.NewDuration("1h")).    // Deduplication window
+    WithScheduleIn(workqueue.NewDuration("10m")).  // Delay before processing
+    WithRetention(workqueue.NewDuration("24h")).   // How long to keep the event
+    WithUniqueTTL(workqueue.NewDuration("1h")).    // Deduplication window
     Build()
 ```
 
@@ -134,11 +134,11 @@ Use human-readable duration strings:
 
 ```go
 // Valid duration formats
-gopherline.NewDuration("30s")    // 30 seconds
-gopherline.NewDuration("5m")     // 5 minutes
-gopherline.NewDuration("2h")     // 2 hours
-gopherline.NewDuration("7d")     // 7 days (parsed as 168h)
-gopherline.NewDuration("1h30m")  // 1 hour 30 minutes
+workqueue.NewDuration("30s")    // 30 seconds
+workqueue.NewDuration("5m")     // 5 minutes
+workqueue.NewDuration("2h")     // 2 hours
+workqueue.NewDuration("7d")     // 7 days (parsed as 168h)
+workqueue.NewDuration("1h30m")  // 1 hour 30 minutes
 ```
 
 ## Configuration Options
@@ -168,10 +168,10 @@ Classify events by priority or processing requirements:
 ### Basic Event Publishing
 
 ```go
-func publishUserEvent(producer gopherline.Producer, userID string) error {
+func publishUserEvent(producer workqueue.Producer, userID string) error {
     ctx := context.Background()
     
-    payload := gopherline.NewInputBuilder().
+    payload := workqueue.NewInputBuilder().
         WithEvent("user.updated").
         WithData(map[string]any{
             "user_id": userID,
@@ -186,16 +186,16 @@ func publishUserEvent(producer gopherline.Producer, userID string) error {
 ### Critical Event with Retries
 
 ```go
-func publishPaymentEvent(producer gopherline.Producer, payment Payment) error {
+func publishPaymentEvent(producer workqueue.Producer, payment Payment) error {
     ctx := context.Background()
     
-    opts := gopherline.NewOptsBuilder().
+    opts := workqueue.NewOptsBuilder().
         WithQueueType("internal.critical").
         WithMaxRetries(10).
-        WithRetention(gopherline.NewDuration("72h")).
+        WithRetention(workqueue.NewDuration("72h")).
         Build()
     
-    payload := gopherline.NewInputBuilder().
+    payload := workqueue.NewInputBuilder().
         WithEvent("payment.processed").
         WithData(payment).
         WithOptions(opts).
@@ -209,16 +209,16 @@ func publishPaymentEvent(producer gopherline.Producer, payment Payment) error {
 ### Scheduled Event
 
 ```go
-func scheduleReminder(producer gopherline.Producer, reminder Reminder) error {
+func scheduleReminder(producer workqueue.Producer, reminder Reminder) error {
     ctx := context.Background()
     
-    opts := gopherline.NewOptsBuilder().
+    opts := workqueue.NewOptsBuilder().
         WithQueueType("internal.medium").
-        WithScheduleIn(gopherline.NewDuration("24h")). // Send in 24 hours
+        WithScheduleIn(workqueue.NewDuration("24h")). // Send in 24 hours
         WithMaxRetries(3).
         Build()
     
-    payload := gopherline.NewInputBuilder().
+    payload := workqueue.NewInputBuilder().
         WithEvent("reminder.send").
         WithData(reminder).
         WithOptions(opts).
@@ -231,17 +231,17 @@ func scheduleReminder(producer gopherline.Producer, reminder Reminder) error {
 ### Batch Processing with Deduplication
 
 ```go
-func publishBatchEvents(producer gopherline.Producer, events []Event) error {
+func publishBatchEvents(producer workqueue.Producer, events []Event) error {
     ctx := context.Background()
     
-    opts := gopherline.NewOptsBuilder().
+    opts := workqueue.NewOptsBuilder().
         WithQueueType("internal.low").
-        WithUniqueTTL(gopherline.NewDuration("1h")). // Deduplicate within 1 hour
+        WithUniqueTTL(workqueue.NewDuration("1h")). // Deduplicate within 1 hour
         WithMaxRetries(2).
         Build()
     
     for _, event := range events {
-        payload := gopherline.NewInputBuilder().
+        payload := workqueue.NewInputBuilder().
             WithEvent("batch.process").
             WithData(event).
             WithOptions(opts).
@@ -261,14 +261,14 @@ func publishBatchEvents(producer gopherline.Producer, events []Event) error {
 
 ```go
 type EventService struct {
-    producer gopherline.Producer
+    producer workqueue.Producer
 }
 
 func NewEventService(endpoint, token string) *EventService {
-    opts := gopherline.NewOptsBuilder().
+    opts := workqueue.NewOptsBuilder().
         WithQueueType("internal.medium").
         WithMaxRetries(3).
-        WithRetention(gopherline.NewDuration("48h")).
+        WithRetention(workqueue.NewDuration("48h")).
         Build()
     
     producer := SDK.NewProducer(endpoint, token, opts)
@@ -277,7 +277,7 @@ func NewEventService(endpoint, token string) *EventService {
 }
 
 func (s *EventService) PublishUserCreated(ctx context.Context, user User) error {
-    payload := gopherline.NewInputBuilder().
+    payload := workqueue.NewInputBuilder().
         WithEvent("user.created").
         WithData(user).
         WithCorrelationID(user.ID).
@@ -287,12 +287,12 @@ func (s *EventService) PublishUserCreated(ctx context.Context, user User) error 
 }
 
 func (s *EventService) PublishCriticalAlert(ctx context.Context, alert Alert) error {
-    opts := gopherline.NewOptsBuilder().
+    opts := workqueue.NewOptsBuilder().
         WithQueueType("internal.critical").
         WithMaxRetries(10).
         Build()
     
-    payload := gopherline.NewInputBuilder().
+    payload := workqueue.NewInputBuilder().
         WithEvent("alert.critical").
         WithData(alert).
         WithOptions(opts). // Override default options
@@ -346,7 +346,7 @@ if err := producer.Publish(ctx, payload); err != nil {
 Always include correlation IDs for request tracing:
 
 ```go
-payload := gopherline.NewInputBuilder().
+payload := workqueue.NewInputBuilder().
     WithEvent("order.created").
     WithData(order).
     WithCorrelationID(requestID). // From incoming request
@@ -368,7 +368,7 @@ if err := producer.Publish(ctx, payload); err != nil {
 
 ## Server Configuration
 
-The producer connects to a gopherline server endpoint. Ensure your server:
+The producer connects to a workqueue server endpoint. Ensure your server:
 
 1. Accepts POST requests at `/event/publisher`
 2. Uses Basic authentication with the provided token

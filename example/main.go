@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/IsaacDSC/gopherline"
-	"github.com/IsaacDSC/gopherline/SDK"
+	"github.com/IsaacDSC/workqueue"
+	"github.com/IsaacDSC/workqueue/SDK"
 )
 
 type Service struct {

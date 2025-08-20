@@ -7,22 +7,22 @@ import (
 )
 
 type Service struct {
-	producer gopherline.Producer
+	producer workqueue.Producer
 }
 
-func NewService(producer gopherline.Producer) *Service {
+func NewService(producer workqueue.Producer) *Service {
 	return &Service{producer: producer}
 }
 
 func (s Service) Example01(ctx context.Context) error {
-	opts := gopherline.NewOptsBuilder().
+	opts := workqueue.NewOptsBuilder().
 		WithQueueType("internal.critical").
 		WithMaxRetries(5).
-		WithRetention(gopherline.NewDuration("168h")).
-		WithScheduleIn(gopherline.NewDuration("5min")).
+		WithRetention(workqueue.NewDuration("168h")).
+		WithScheduleIn(workqueue.NewDuration("5min")).
 		Build()
 
-	payload := gopherline.NewInputBuilder().
+	payload := workqueue.NewInputBuilder().
 		WithOptions(opts).
 		WithEvent("user.created").
 		WithData(map[string]any{"input": "value"}).
@@ -32,7 +32,7 @@ func (s Service) Example01(ctx context.Context) error {
 }
 
 func (s Service) Example02(ctx context.Context) error {
-	payload := gopherline.NewInputBuilder().
+	payload := workqueue.NewInputBuilder().
 		WithEvent("user.created").
 		WithData(map[string]any{"input": "value"}).
 		Build()
@@ -42,11 +42,11 @@ func (s Service) Example02(ctx context.Context) error {
 
 func main() {
 	ctx := context.Background()
-	opts := gopherline.NewOptsBuilder().
+	opts := workqueue.NewOptsBuilder().
 		WithQueueType("internal.medium").
 		WithMaxRetries(5).
-		WithRetention(gopherline.NewDuration("168h")).
-		WithScheduleIn(gopherline.NewDuration("5min")).
+		WithRetention(workqueue.NewDuration("168h")).
+		WithScheduleIn(workqueue.NewDuration("5min")).
 		Build()
 
 	producer := SDK.NewProducer("http://localhost:8080", "your-token", opts)

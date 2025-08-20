@@ -1,4 +1,4 @@
-package gopherline
+package workqueue
 
 // OptsBuilder provides a fluent interface for building Opts
 type OptsBuilder struct {

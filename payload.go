@@ -1,4 +1,4 @@
-package gopherline
+package workqueue
 
 type Payload struct {
 	Event    string         `json:"event_name"`

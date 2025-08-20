@@ -1,4 +1,4 @@
-package gopherline
+package workqueue
 
 type Input struct {
 	Event   string `json:"event_name"`

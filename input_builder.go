@@ -1,4 +1,4 @@
-package gopherline
+package workqueue
 
 // InputBuilder provides a fluent interface for building Input
 type InputBuilder struct {

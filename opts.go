@@ -1,4 +1,4 @@
-package gopherline
+package workqueue
 
 type Opts struct {
 	QueueType  string   `json:"queue_type,omitempty"`

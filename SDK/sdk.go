@@ -15,29 +15,29 @@ type Producer struct {
 	host   string
 	token  string
 	client *http.Client
-	opts   gopherline.Opts
+	opts   workqueue.Opts
 }
 
-var _ gopherline.Producer = (*Producer)(nil)
+var _ workqueue.Producer = (*Producer)(nil)
 
-func NewProducer(host string, token string, opts gopherline.Opts) *Producer {
+func NewProducer(host string, token string, opts workqueue.Opts) *Producer {
 	client := &http.Client{
 		Timeout: time.Duration(50 * time.Millisecond),
 	}
 	return &Producer{host: host, token: token, client: client, opts: opts}
 }
 
-func (p Producer) Publish(ctx context.Context, input gopherline.Input) error {
+func (p Producer) Publish(ctx context.Context, input workqueue.Input) error {
 	if input.Event == "" {
 		return fmt.Errorf("event cannot be empty")
 	}
 
-	var emptyOpts gopherline.Opts
+	var emptyOpts workqueue.Opts
 	if input.Options == emptyOpts {
 		input.Options = p.opts
 	}
 
-	return p.publish(ctx, gopherline.Payload{
+	return p.publish(ctx, workqueue.Payload{
 		Event:   input.Event,
 		Data:    input.Data,
 		Options: input.Options,
@@ -50,7 +50,7 @@ func (p Producer) Publish(ctx context.Context, input gopherline.Input) error {
 	})
 }
 
-func (p Producer) publish(ctx context.Context, payload gopherline.Payload) error {
+func (p Producer) publish(ctx context.Context, payload workqueue.Payload) error {
 	url := fmt.Sprintf("%s/event/publisher", p.host)
 
 	jsonData, err := json.Marshal(payload)

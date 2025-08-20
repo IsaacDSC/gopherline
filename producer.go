@@ -1,4 +1,4 @@
-package gopherline
+package workqueue
 
 import "context"
 

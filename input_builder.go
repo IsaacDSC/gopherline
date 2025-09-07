@@ -10,6 +10,12 @@ func NewInputBuilder() *InputBuilder {
 	return &InputBuilder{input: Input{}}
 }
 
+// WithServiceName sets the service name
+func (b *InputBuilder) WithServiceName(serviceName string) *InputBuilder {
+	b.input.ServiceName = serviceName
+	return b
+}
+
 // WithEvent sets the event name
 func (b *InputBuilder) WithEvent(event string) *InputBuilder {
 	b.input.Event = event

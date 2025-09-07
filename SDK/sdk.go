@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/IsaacDSC/workqueue"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/IsaacDSC/workqueue"
 )
 
 type Producer struct {
@@ -38,9 +39,10 @@ func (p Producer) Publish(ctx context.Context, input workqueue.Input) error {
 	}
 
 	return p.publish(ctx, workqueue.Payload{
-		Event:   input.Event,
-		Data:    input.Data,
-		Options: input.Options,
+		ServiceName: input.ServiceName,
+		Event:       input.Event,
+		Data:        input.Data,
+		Options:     input.Options,
 		Metadata: map[string]any{
 			"headers": map[string]string{
 				"correlation_id": input.CorrelationID,

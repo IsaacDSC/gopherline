@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/IsaacDSC/workqueue"
 	"github.com/IsaacDSC/workqueue/SDK"
 )
@@ -16,16 +17,21 @@ func NewService(producer workqueue.Producer) *Service {
 
 func (s Service) Example01(ctx context.Context) error {
 	opts := workqueue.NewOptsBuilder().
-		WithQueueType("internal.critical").
+		WithQueueType("internal").
 		WithMaxRetries(5).
 		WithRetention(workqueue.NewDuration("168h")).
-		WithScheduleIn(workqueue.NewDuration("5min")).
+		WithScheduleIn(workqueue.NewDuration("10s")).
 		Build()
 
 	payload := workqueue.NewInputBuilder().
 		WithOptions(opts).
-		WithEvent("user.created").
-		WithData(map[string]any{"input": "value"}).
+		// WithEvent("payment.processed").
+		WithEvent("event2").
+		WithData(map[string]any{
+			"input":    "value",
+			"whoami":   "event1",
+			"schedule": "10s",
+		}).
 		Build()
 
 	return s.producer.Publish(ctx, payload)
@@ -33,8 +39,12 @@ func (s Service) Example01(ctx context.Context) error {
 
 func (s Service) Example02(ctx context.Context) error {
 	payload := workqueue.NewInputBuilder().
-		WithEvent("user.created").
-		WithData(map[string]any{"input": "value"}).
+		// WithEvent("payment.processed").
+		WithEvent("event2").
+		WithData(map[string]any{
+			"input":  "value",
+			"whoami": "event2",
+		}).
 		Build()
 
 	return s.producer.Publish(ctx, payload)
@@ -43,13 +53,13 @@ func (s Service) Example02(ctx context.Context) error {
 func main() {
 	ctx := context.Background()
 	opts := workqueue.NewOptsBuilder().
-		WithQueueType("internal.medium").
+		WithQueueType("external").
 		WithMaxRetries(5).
 		WithRetention(workqueue.NewDuration("168h")).
 		WithScheduleIn(workqueue.NewDuration("5min")).
 		Build()
 
-	producer := SDK.NewProducer("http://localhost:8080", "your-token", opts)
+	producer := SDK.NewProducer("my-app", "http://localhost:8080", "YWRtaW46cGFzc3dvcmQ=", opts)
 
 	service := NewService(producer)
 

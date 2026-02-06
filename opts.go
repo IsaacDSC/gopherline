@@ -1,7 +1,7 @@
 package workqueue
 
 type Opts struct {
-	QueueType  string   `json:"queue_type,omitempty"`
+	QueueType  string   `json:"wq_type,omitempty"`
 	MaxRetries uint     `json:"max_retries,omitempty"`
 	ScheduleIn Duration `json:"schedule_in,omitempty"`
 	Retention  Duration `json:"retention,omitempty"`

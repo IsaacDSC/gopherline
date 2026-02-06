@@ -13,19 +13,20 @@ import (
 )
 
 type Producer struct {
-	host   string
-	token  string
-	client *http.Client
-	opts   workqueue.Opts
+	serviceName string
+	host        string
+	token       string
+	client      *http.Client
+	opts        workqueue.Opts
 }
 
 var _ workqueue.Producer = (*Producer)(nil)
 
-func NewProducer(host string, token string, opts workqueue.Opts) *Producer {
+func NewProducer(serviceName string, host string, token string, opts workqueue.Opts) *Producer {
 	client := &http.Client{
 		Timeout: time.Duration(50 * time.Millisecond),
 	}
-	return &Producer{host: host, token: token, client: client, opts: opts}
+	return &Producer{serviceName: serviceName, host: host, token: token, client: client, opts: opts}
 }
 
 func (p Producer) Publish(ctx context.Context, input workqueue.Input) error {
@@ -39,7 +40,7 @@ func (p Producer) Publish(ctx context.Context, input workqueue.Input) error {
 	}
 
 	return p.publish(ctx, workqueue.Payload{
-		ServiceName: input.ServiceName,
+		ServiceName: p.serviceName,
 		Event:       input.Event,
 		Data:        input.Data,
 		Options:     input.Options,
@@ -53,7 +54,7 @@ func (p Producer) Publish(ctx context.Context, input workqueue.Input) error {
 }
 
 func (p Producer) publish(ctx context.Context, payload workqueue.Payload) error {
-	url := fmt.Sprintf("%s/event/publisher", p.host)
+	url := fmt.Sprintf("%s/api/v1/event/publisher", p.host)
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {

@@ -2,6 +2,7 @@ package workqueue
 
 import (
 	"encoding/json"
+	"log"
 	"time"
 )
 
@@ -53,6 +54,7 @@ func (d Duration) String() string {
 func NewDuration(input string) Duration {
 	duration, err := time.ParseDuration(input)
 	if err != nil {
+		log.Printf("failed to parse duration %q: %v", input, err)
 		return Duration(0)
 	}
 	return Duration(duration)
